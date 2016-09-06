@@ -17,10 +17,10 @@
 from oslo_log import log as logging
 from oslo_versionedobjects import fields
 
-from glare.objects import attribute
 from glare.objects import base as base_artifact
-from glare.objects import fields as glare_fields
-from glare.objects import validators
+from glare.objects.meta import attribute
+from glare.objects.meta import fields as glare_fields
+from glare.objects.meta import validators
 
 LOG = logging.getLogger(__name__)
 
@@ -35,7 +35,8 @@ class SampleArtifact(base_artifact.BaseArtifact):
     VERSION = '1.0'
 
     fields = {
-        'blob': Blob(required_on_activate=False, mutable=True, filter_ops=[]),
+        'blob': Blob(required_on_activate=False, mutable=True, filter_ops=[],
+                     description="I am Blob"),
         'small_blob': Blob(max_blob_size=10, required_on_activate=False,
                            mutable=True, filter_ops=[]),
         'dependency1': Field(glare_fields.Dependency,
@@ -96,6 +97,7 @@ class SampleArtifact(base_artifact.BaseArtifact):
                                    required_on_activate=False,
                                    filter_ops=attribute.FILTERS,
                                    validators=[
+                                       validators.AllowedValues(['aa', 'bb']),
                                        validators.MaxStrLen(10)
                                    ]),
         'list_validators': List(fields.String,

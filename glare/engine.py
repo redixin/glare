@@ -24,7 +24,7 @@ from glare.db import artifact_api
 from glare.i18n import _
 from glare import locking
 from glare.notification import Notifier
-from glare.objects import registry as glare_registry
+from glare.objects.meta import registry as glare_registry
 
 LOG = logging.getLogger(__name__)
 
@@ -205,7 +205,7 @@ class Engine(object):
             except (jsonpatch.JsonPatchException,
                     jsonpatch.JsonPointerException,
                     KeyError) as e:
-                raise exception.BadRequest(message=e.message)
+                raise exception.BadRequest(message=str(e))
             except TypeError as e:
                 msg = _("Incorrect type of the element. Reason: %s") % str(e)
                 raise exception.BadRequest(msg)

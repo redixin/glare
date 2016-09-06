@@ -20,7 +20,7 @@ from oslo_utils import encodeutils
 from oslo_versionedobjects import fields
 
 from glare.i18n import _
-from glare.objects import fields as glare_fields
+from glare.objects.meta import fields as glare_fields
 
 LOG = logging.getLogger(__name__)
 
@@ -73,6 +73,22 @@ class UUID(Validator):
     def to_jsonschema(self):
         return {'pattern': ('^([0-9a-fA-F]){8}-([0-9a-fA-F]){4}-([0-9a-fA-F])'
                             '{4}-([0-9a-fA-F]){4}-([0-9a-fA-F]){12}$')}
+
+
+class AllowedValues(Validator):
+    def __init__(self, allowed_values):
+        self.allowed_values = allowed_values
+
+    def get_allowed_types(self):
+        return fields.StringField,
+
+    def validate(self, value):
+        if value not in self.allowed_values:
+            raise ValueError(_("Value must be once of the following: %s") %
+                             ', '.join(self.allowed_values))
+
+    def to_jsonschema(self):
+        return {'enum': self.allowed_values + [None]}
 
 
 class Version(Validator):
