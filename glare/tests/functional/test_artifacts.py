@@ -1496,6 +1496,21 @@ class TestArtifact(functional.FunctionalTest):
         patch = [{"op": "replace", "path": "/str1", "value": 'd' * 256}]
         self.patch(url=url, data=patch, status=400)
 
+        # 'cc' is not allowed value for the string
+        patch = [{"op": "replace", "path": "/string_validators",
+                  "value": 'cc'}]
+        self.patch(url=url, data=patch, status=400)
+
+        # 'aa' is okay
+        patch = [{"op": "replace", "path": "/string_validators",
+                  "value": 'aa'}]
+        self.patch(url=url, data=patch)
+
+        # 'bb' is okay too
+        patch = [{"op": "replace", "path": "/string_validators",
+                  "value": 'bb'}]
+        self.patch(url=url, data=patch)
+
         # test list has 3 elements maximum
         patch = [{"op": "add", "path": "/list_validators/-", "value": 'd'}]
         self.patch(url=url, data=patch, status=400)
@@ -2024,29 +2039,58 @@ class TestArtifact(functional.FunctionalTest):
                           u'properties': {u'checksum': {
                               u'type': [u'string',
                                         u'null']},
-                              u'content_type': {
-                                  u'type': u'string'},
-                              u'external': {
-                                  u'type': u'boolean'},
-                              u'size': {
-                                  u'type': [
-                                      u'number',
-                                      u'null']},
-                              u'status': {
-                                  u'enum': [
-                                      u'saving',
-                                      u'active',
-                                      u'pending_delete'],
-                                  u'type': u'string'}},
-                          u'required': [u'size',
-                                        u'checksum',
-                                        u'external',
-                                        u'status',
-                                        u'content_type'],
-                          u'required_on_activate': False,
-                          u'type': [u'object',
-                                    u'null']},
-                u'id': {u'filter_ops': [u'eq',
+                    u'string_mutable': {u'filter_ops': [u'eq',
+                                                        u'neq',
+                                                        u'in',
+                                                        u'gt',
+                                                        u'gte',
+                                                        u'lt',
+                                                        u'lte'],
+                                        u'maxLength': 255,
+                                        u'mutable': True,
+                                        u'required_on_activate': False,
+                                        u'type': [u'string',
+                                                  u'null']},
+                    u'string_required': {
+                        u'filter_ops': [u'eq',
+                                        u'neq',
+                                        u'in',
+                                        u'gt',
+                                        u'gte',
+                                        u'lt',
+                                        u'lte'],
+                        u'maxLength': 255,
+                        u'type': [u'string',
+                                  u'null']},
+                    u'string_validators': {
+                        u'enum': [u'aa',
+                                  u'bb',
+                                  None],
+                        u'filter_ops': [u'eq',
+                                        u'neq',
+                                        u'in',
+                                        u'gt',
+                                        u'gte',
+                                        u'lt',
+                                        u'lte'],
+                        u'maxLength': 10,
+                        u'required_on_activate': False,
+                        u'type': [u'string',
+                                  u'null']},
+                    u'supported_by': {
+                        u'additionalProperties': {
+                            u'type': u'string'},
+                        u'filter_ops': [u'eq',
+                                        u'neq',
+                                        u'in'],
+                        u'maxProperties': 255,
+                        u'required': [u'name'],
+                        u'required_on_activate': False,
+                        u'type': [u'object',
+                                  u'null']},
+                    u'system_attribute': {
+                        u'default': u'default',
+                        u'filter_ops': [u'eq',
                                         u'neq',
                                         u'in'],
                         u'maxLength': 255,
