@@ -32,6 +32,10 @@ class Image(base.BaseArtifact):
         'container_format': Field(fields.StringField,
                                   description="Image container format."),
         'disk_format': Field(fields.StringField,
+                             validators=[
+                                 validators.AllowedValues(['raw', 'vhd', 'vhdx',
+                                 'vmdk', 'vdi', 'iso', 'qcow2',
+                                 'aki', 'ari', 'ami'])],
                              description="Image disk format."),
         'min_ram': Field(fields.IntegerField, required_on_activate=False,
                          validators=[validators.MinNumberSize(0)],
