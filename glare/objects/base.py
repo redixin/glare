@@ -1154,6 +1154,8 @@ class BaseArtifact(base.VersionedObject):
             schema['enum'] = list(
                 glare_fields.ArtifactStatusField.ARTIFACT_STATUS)
 
+        if attr.description:
+            schema['description'] = attr.description
         if attr.mutable:
             schema['mutable'] = True
         if attr.sortable:
