@@ -1354,6 +1354,9 @@ class TestArtifact(functional.FunctionalTest):
         self.patch(url=url, data=self.make_active)
         self.patch(url=url, data=self.make_deactivated)
         self.delete(url=url, status=204)
+        self.get(url=url, status=404)
+        self.assertEqual(0, len(self.get(
+            url='/sample_artifact')['sample_artifact']))
 
     def test_artifact_deactivate(self):
         # test artifact deactivate for non-active artifact
@@ -1986,51 +1989,6 @@ class TestArtifact(functional.FunctionalTest):
                                 u'size': {
                                     u'type': [
                                         u'number',
->>>>>>> 158f275... Add attribute description to jsonschema
-                                        u'null']},
-                              u'content_type': {
-                                  u'type': u'string'},
-                              u'external': {
-                                  u'type': u'boolean'},
-                              u'size': {
-                                  u'type': [
-                                      u'number',
-                                      u'null']},
-                              u'status': {
-                                  u'enum': [
-                                      u'saving',
-                                      u'active',
-                                      u'pending_delete'],
-                                  u'type': u'string'}},
-                          u'required': [u'size',
-                                        u'checksum',
-                                        u'external',
-                                        u'status',
-                                        u'content_type'],
-                          u'required_on_activate': False,
-                          u'type': [u'object',
-                                    u'null']},
-                u'bool1': {u'default': False,
-                           u'filter_ops': [u'eq'],
-                           u'required_on_activate': False,
-                           u'type': [u'string',
-                                     u'null']},
-                u'bool2': {u'default': False,
-                           u'filter_ops': [u'eq'],
-                           u'required_on_activate': False,
-                           u'type': [u'string',
-                                     u'null']},
-                u'created_at': {u'filter_ops': [u'eq',
-                                                u'neq',
-                                                u'in',
-                                                u'gt',
-                                                u'gte',
-                                                u'lt',
-                                                u'lte'],
-                                u'format': u'date-time',
-                                u'readOnly': True,
-                                u'sortable': True,
-<<<<<<< HEAD
                                 u'type': u'string'},
                 u'dependency1': {u'filter_ops': [u'eq',
                                                  u'neq',
@@ -2147,7 +2105,6 @@ class TestArtifact(functional.FunctionalTest):
                 u'icon': {u'additionalProperties': False,
                           u'filter_ops': [],
                           u'properties': {u'checksum': {
-=======
                                 u'type': [u'number',
                                           u'null']},
                     u'float2': {u'filter_ops': [u'eq',
@@ -2375,7 +2332,6 @@ class TestArtifact(functional.FunctionalTest):
                               u'maxLength': 255,
                               u'required_on_activate': False,
                               u'sortable': True,
->>>>>>> 158f275... Add attribute description to jsonschema
                               u'type': [u'string',
                                         u'null']},
                     u'string_mutable': {u'filter_ops': [u'eq',
@@ -2390,7 +2346,6 @@ class TestArtifact(functional.FunctionalTest):
                                         u'required_on_activate': False,
                                         u'type': [u'string',
                                                   u'null']},
-<<<<<<< HEAD
                     u'string_required': {
                         u'filter_ops': [u'eq',
                                         u'neq',
@@ -2420,7 +2375,6 @@ class TestArtifact(functional.FunctionalTest):
                     u'supported_by': {
                         u'additionalProperties': {
                             u'type': u'string'},
-=======
                     u'string_required': {u'filter_ops': [u'eq',
                                                          u'neq',
                                                          u'in',
@@ -2446,7 +2400,6 @@ class TestArtifact(functional.FunctionalTest):
                         u'type': u'string'},
                         u'description': u'Info about persons who responsible '
                                         u'for artifact support',
->>>>>>> 158f275... Add attribute description to jsonschema
                         u'filter_ops': [u'eq',
                                         u'neq',
                                         u'in'],
@@ -2455,6 +2408,7 @@ class TestArtifact(functional.FunctionalTest):
                         u'required_on_activate': False,
                         u'type': [u'object',
                                   u'null']},
+<<<<<<< HEAD
 <<<<<<< HEAD
                     u'system_attribute': {
                         u'default': u'default',
@@ -2727,7 +2681,6 @@ class TestArtifact(functional.FunctionalTest):
             u'required': [u'name'],
             u'title': u'Artifact type sample_artifact of version 1.0',
             u'type': u'object'}
-=======
                     u'system_attribute': {u'default': u'default',
                                           u'filter_ops': [u'eq',
                                                           u'neq',
@@ -2791,7 +2744,6 @@ class TestArtifact(functional.FunctionalTest):
                 u'required': [u'name'],
                 u'title': u'Artifact type sample_artifact of version 1.0',
                 u'type': u'object'}}
->>>>>>> 158f275... Add attribute description to jsonschema
 
         # Get list schemas of artifacts
         result = self.get(url='/schemas')
@@ -3182,3 +3134,43 @@ class TestArtifact(functional.FunctionalTest):
         result = self.get(url=url, headers=headers)
         self.assertEqual(art1, result['sample_artifact'][0])
         self.assertEqual(response_url, result['first'])
+
+    def test_latest_filter(self):
+        # Create artifacts with versions
+        group1_versions = ['1.0', '20.0', '2.0.0', '2.0.1-beta', '2.0.1']
+        group2_versions = ['1', '1000.0.1-beta', '99.0',
+                           '1000.0.1-alpha', '1000.0.1']
+
+        for i in range(5):
+            self.create_artifact(
+                {'name': 'group1',
+                 'version': group1_versions[i],
+                 'tags': ['tag%s' % i],
+                 'int1': 2048,
+                 'float1': 123.456,
+                 'str1': 'bugaga',
+                 'bool1': True})
+            self.create_artifact(
+                {'name': 'group2',
+                 'version': group2_versions[i],
+                 'tags': ['tag%s' % i],
+                 'int1': 2048,
+                 'float1': 123.456,
+                 'str1': 'bugaga',
+                 'bool1': True})
+
+        url = '/sample_artifact?version=latest&sort=name:asc'
+        res = self.get(url=url, status=200)['sample_artifact']
+        self.assertEqual(2, len(res))
+        self.assertEqual('20.0.0', res[0]['version'])
+        self.assertEqual('1000.0.1', res[1]['version'])
+
+        url = '/sample_artifact?version=latest&name=group1'
+        res = self.get(url=url, status=200)['sample_artifact']
+        self.assertEqual(1, len(res))
+        self.assertEqual('20.0.0', res[0]['version'])
+
+        url = '/sample_artifact?version=latest&name=group2'
+        res = self.get(url=url, status=200)['sample_artifact']
+        self.assertEqual(1, len(res))
+        self.assertEqual('1000.0.1', res[0]['version'])
